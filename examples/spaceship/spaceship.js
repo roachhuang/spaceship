@@ -58,7 +58,7 @@ function paintScore(score) {
 function paintGameOver() {
   ctx.fillStyle = '#ff0000';
   ctx.font = 'bold 64px sans-serif';
-  ctx.fillText('Game Over!', canvas.width/2, canvas.height/2);
+  ctx.fillText('Game Over!', canvas.width / 2, canvas.height / 2);
 }
 
 function drawTriangle(x, y, width, color, direction) {
@@ -101,9 +101,9 @@ function paintHeroShots(heroShots, enemies) {
     catch (err) { var enemies_length = 0 }
     for (let l = 0; l < enemies_length || 0; l++) {
       let enemy = enemies[l];
-      if (!enemy.isDead && collision(shot, enemy)) {       
+      if (!enemy.isDead && collision(shot, enemy)) {
         ScoreSubject.onNext(SCORE_INCREASE);
-        enemy.isDead = true;      
+        enemy.isDead = true;
         shot.x = shot.y = -100;
         break;
       }
@@ -115,19 +115,21 @@ function paintHeroShots(heroShots, enemies) {
 }
 
 var SPEED = 40;
+var SPEED1 = 160;
 var STAR_NUMBER = 250;
-var StarStream = Rx.Observable.range(1, STAR_NUMBER)
-  .map(()=> {
+let STAR_NUMBER1 = 250;
+var StarStream0 = Rx.Observable.range(1, STAR_NUMBER)
+  .map(() => {
     return {
       x: parseInt(Math.random() * canvas.width),
       y: parseInt(Math.random() * canvas.height),
       size: Math.random() * 3 + 1
     };
-  })  
+  })
   .toArray()
   .flatMap(function (starArray) {
     return Rx.Observable.interval(SPEED).map(function () {
-      starArray.forEach(star=> {
+      starArray.forEach(star => {
         if (star.x >= canvas.width) {
           star.x = 0;
         }
@@ -142,6 +144,37 @@ var StarStream = Rx.Observable.range(1, STAR_NUMBER)
       return starArray;
     });
   });
+
+var StarStream1 = Rx.Observable.range(1, STAR_NUMBER1)
+  .map(() => {
+    return {
+      x: parseInt(Math.random() * canvas.width),
+      y: parseInt(Math.random() * canvas.height),
+      size: Math.random() * 3 + 1
+    };
+  })
+  .toArray()
+  .flatMap(function (starArray) {
+    return Rx.Observable.interval(SPEED1).map(function () {
+      starArray.forEach(star => {
+        if (star.x >= canvas.width) {
+          star.x = 0;
+        }
+        star.x += 3;
+
+        /*       
+         if (star.y >= canvas.height) {
+           star.y = 0;
+         }
+         star.y += 3;
+         */
+      });
+      return starArray;
+    });
+  });
+
+let StarStream = Rx.Observable
+  .merge(StarStream0, StarStream1);
 
 var HERO_Y = canvas.height - 30;
 var mouseMove = Rx.Observable.fromEvent(canvas, 'mousemove');
@@ -166,7 +199,7 @@ var Enemies = Rx.Observable.interval(ENEMY_FREQ)
       shots: []
     };
 
-    Rx.Observable.interval(ENEMY_SHOOTING_FREQ).subscribe(() => {
+    Rx.Observable.interval(getRandomInt(ENEMY_SHOOTING_FREQ, 1500)).subscribe(() => {
       if (!enemy.isDead) {
         enemy.shots.push({ x: enemy.x, y: enemy.y });
       }
