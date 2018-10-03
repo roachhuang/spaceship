@@ -33,10 +33,12 @@ function paintStars(stars) {
 function gameOver(ship, enemies) {
   return enemies.some(enemy => {
     if (collision(ship, enemy)) {
+      paintGameOver();
       return true;
     }
 
     return enemy.shots.some(shot => {
+      paintGameOver();
       return collision(ship, shot);
     });
   });
@@ -51,6 +53,12 @@ function paintScore(score) {
   ctx.fillStyle = '#ffffff';
   ctx.font = 'bold 26px sans-serif';
   ctx.fillText('Score: ' + score, 40, 43);
+}
+
+function paintGameOver() {
+  ctx.fillStyle = '#ff0000';
+  ctx.font = 'bold 64px sans-serif';
+  ctx.fillText('Game Over!', canvas.width/2, canvas.height/2);
 }
 
 function drawTriangle(x, y, width, color, direction) {
